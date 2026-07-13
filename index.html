@@ -113,9 +113,52 @@
 
     </main>
 
+    <!-- Modal Kustom -->
+    <div id="customModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-xl space-y-6">
+            <p id="modalMessage" class="text-sm font-semibold text-slate-700 text-center"></p>
+            <div id="modalButtons" class="flex gap-2"></div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        // Fungsi Kustom Alert/Confirm
+        function showModal(message, type = 'alert', callback = null) {
+            const modal = document.getElementById('customModal');
+            const msg = document.getElementById('modalMessage');
+            const btnContainer = document.getElementById('modalButtons');
+
+            msg.innerText = message;
+            btnContainer.innerHTML = ''; 
+
+            if (type === 'alert') {
+                const btn = document.createElement('button');
+                btn.innerText = 'OK';
+                btn.className = 'w-full py-3 bg-rose-600 text-white font-bold text-sm rounded-xl';
+                btn.onclick = () => { modal.classList.add('hidden'); };
+                btnContainer.appendChild(btn);
+            } else if (type === 'confirm') {
+                const btnNo = document.createElement('button');
+                btnNo.innerText = 'Batal';
+                btnNo.className = 'flex-1 py-3 bg-slate-200 text-slate-700 font-bold text-sm rounded-xl';
+                btnNo.onclick = () => { modal.classList.add('hidden'); };
+
+                const btnYes = document.createElement('button');
+                btnYes.innerText = 'Ya';
+                btnYes.className = 'flex-1 py-3 bg-rose-600 text-white font-bold text-sm rounded-xl';
+                btnYes.onclick = () => { modal.classList.add('hidden'); if(callback) callback(); };
+
+                btnContainer.appendChild(btnNo);
+                btnContainer.appendChild(btnYes);
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        window.showModal = showModal;
 
         const firebaseConfig = {
           apiKey: "AIzaSyD_gPsy4tfVRTYJJe2e7pEFyGFtP94YY4I",
@@ -201,7 +244,7 @@
             const pass = document.getElementById('loginPassword').value.trim();
             const isRememberChecked = document.getElementById('rememberMe').checked;
 
-            if (!cabang || !phone || !pass) return alert("Harap lengkapi Cabang Kerja, Nomor HP, dan Password Anda!");
+            if (!cabang || !phone || !pass) return showModal("Harap lengkapi Cabang Kerja, Nomor HP, dan Password Anda!");
 
             const userCocok = karyawan.find(e => e.phone === phone && e.password === pass);
 
@@ -216,10 +259,10 @@
                     sessionStorage.setItem('active_session_cabang', cabang);
                 }
 
-                alert("Login Berhasil! Selamat bekerja.");
+                showModal("Login Berhasil! Selamat bekerja.");
                 updateDashboardTampilan();
             } else {
-                alert("Gagal Login! Kredensial akun salah atau tidak ditemukan.");
+                showModal("Gagal Login! Kredensial akun salah atau tidak ditemukan.");
             }
         }
 
@@ -316,7 +359,7 @@
             const alasan = document.getElementById('inputAlasanIzin').value.trim();
             
             if (!alasan) {
-                return alert("Keterangan izin wajib diisi secara detail!");
+                return showModal("Keterangan izin wajib diisi secara detail!");
             }
 
             const sekarang = new Date();
@@ -341,7 +384,7 @@
             });
             
             set(ref(db, 'absensi/' + currentUser.id + '/history'), historyArray).then(() => {
-                alert(`Pengajuan izin untuk hari ini berhasil dicatat. Gaji hari ini akan dipotong secara otomatis dari sistem.`);
+                showModal(`Pengajuan izin untuk hari ini berhasil dicatat. Gaji hari ini akan dipotong secara otomatis dari sistem.`);
                 updateDashboardTampilan();
             });
         }
@@ -384,7 +427,7 @@
 
                 if (tipeAbsen === 'Masuk') {
                     if (logHariIni) {
-                        alert("Anda sudah mencatat log masuk/izin hari ini!");
+                        showModal("Anda sudah mencatat log masuk/izin hari ini!");
                         updateDashboardTampilan();
                         return;
                     }
@@ -399,18 +442,18 @@
                     });
                     
                     set(ref(db, 'absensi/' + currentUser.id + '/history'), historyArray).then(() => {
-                        alert(`Sukses! Log MASUK tersimpan pukul ${jamMenit} (${statusMasuk}) di cabang ${activeCabang}`);
+                        showModal(`Sukses! Log MASUK tersimpan pukul ${jamMenit} (${statusMasuk}) di cabang ${activeCabang}`);
                         updateDashboardTampilan();
                     });
 
                 } else if (tipeAbsen === 'Pulang') {
                     if (!logHariIni) {
-                        alert("Gagal! Anda belum absen masuk hari ini.");
+                        showModal("Gagal! Anda belum absen masuk hari ini.");
                         updateDashboardTampilan();
                         return;
                     }
                     if (logHariIni.pulang !== "-") {
-                        alert("Anda sudah absen pulang hari ini.");
+                        showModal("Anda sudah absen pulang hari ini.");
                         updateDashboardTampilan();
                         return;
                     }
@@ -421,7 +464,7 @@
                     }
                     
                     set(ref(db, 'absensi/' + currentUser.id + '/history'), historyArray).then(() => {
-                        alert(`Sukses! Log PULANG tersimpan pukul ${jamMenit}. Selamat beristirahat!`);
+                        showModal(`Sukses! Log PULANG tersimpan pukul ${jamMenit}. Selamat beristirahat!`);
                         updateDashboardTampilan();
                     });
                 }
@@ -434,7 +477,7 @@
             }
 
             if (!navigator.geolocation) {
-                return alert("Gagal absen! Perangkat Anda tidak mendukung fitur lokasi GPS.");
+                return showModal("Gagal absen! Perangkat Anda tidak mendukung fitur lokasi GPS.");
             }
 
             document.getElementById('areaTombolAbsen').innerHTML = `<p class="text-xs font-medium text-slate-500 animate-pulse">Sedang memverifikasi lokasi GPS Anda...</p>`;
@@ -449,7 +492,7 @@
                 const allowedRadius = dataCabang ? (parseInt(dataCabang.radius) || 50) : 50;
 
                 if (!dataCabang || !officeLat || !officeLng) {
-                    alert("Peringatan: Koordinat Cabang tempat Anda bekerja hari ini belum diatur oleh Admin. Absen diteruskan tanpa validasi jarak.");
+                    showModal("Peringatan: Koordinat Cabang tempat Anda bekerja hari ini belum diatur oleh Admin. Absen diteruskan tanpa validasi jarak.");
                     eksekusiSimpanFirebase('Masuk');
                     return;
                 }
@@ -457,7 +500,7 @@
                 const jarakSayaKeKantor = hitungJarakMeter(userLat, userLng, officeLat, officeLng);
                 
                 if (jarakSayaKeKantor > allowedRadius) {
-                    alert(`Absen Ditolak!\n\nJarak Anda saat ini adalah ${Math.round(jarakSayaKeKantor)} meter dari Cabang ${dataCabang.nama}.\nBatas maksimum radius aman adalah ${allowedRadius} meter.`);
+                    showModal(`Absen Ditolak!\n\nJarak Anda saat ini adalah ${Math.round(jarakSayaKeKantor)} meter dari Cabang ${dataCabang.nama}.\nBatas maksimum radius aman adalah ${allowedRadius} meter.`);
                     updateDashboardTampilan(); 
                     return;
                 }
@@ -465,13 +508,13 @@
                 eksekusiSimpanFirebase('Masuk');
 
             }, (error) => {
-                alert(`Gagal membaca lokasi! Pastikan izin GPS sudah diizinkan.\nError: ${error.message}`);
+                showModal(`Gagal membaca lokasi! Pastikan izin GPS sudah diizinkan.\nError: ${error.message}`);
                 updateDashboardTampilan();
             }, { enableHighAccuracy: true, timeout: 10000 });
         }
 
         window.prosesLogout = function() {
-            if (confirm("Apakah Anda ingin keluar dari akun ini?")) {
+            showModal("Apakah Anda ingin keluar dari akun ini?", 'confirm', () => {
                 localStorage.removeItem('active_session_user_id');
                 localStorage.removeItem('active_session_cabang');
                 sessionStorage.removeItem('active_session_user_id');
@@ -483,7 +526,7 @@
                 document.getElementById('rememberMe').checked = false;
                 document.getElementById('dashboardCard').classList.add('hidden');
                 document.getElementById('loginCard').classList.remove('hidden');
-            }
+            });
         };
     </script>
 </body>
