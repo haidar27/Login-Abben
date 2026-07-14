@@ -3,22 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abba Bento - Admin Panel</title>
+    <title>Abba Bento - Dashboard Karyawan</title>
     <!-- Tambahkan ini -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#e11d48">
-    
+
     <link rel="icon" type="image/jpeg" href="logo.jpg">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-
     <script>
         tailwind.config = {
             theme: {
@@ -28,243 +23,142 @@
             },
         }
     </script>
-    <style>
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #f8fafc; }
-        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 99px; }
-    </style>
 </head>
-<body class="bg-[#f8fafc] text-slate-700 antialiased selection:bg-rose-500 selection:text-white">
+<body class="bg-[#f8fafc] text-slate-700 antialiased flex items-center justify-center min-h-screen p-4">
 
-    <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50 px-8 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center border border-rose-100 shadow-sm overflow-hidden">
-                <img src="logo.jpg" alt="Logo" class="w-full h-full object-cover">
-            </div>
-            <div>
-                <h1 class="text-base font-bold text-slate-900 tracking-tight">Abba Bento</h1>
-                <p class="text-[11px] font-medium text-slate-400">Payroll & Attendance Dashboard</p>
-            </div>
-        </div>
-        <div class="flex items-center gap-2">
-            <button onclick="clearData()" class="px-4 py-2 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200/60 rounded-xl transition-all">
-                Reset Sistem
-            </button>
-        </div>
-    </header>
-
-    <main class="p-8 max-w-7xl mx-auto space-y-8">
+    <main class="w-full max-w-md">
         
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.01)] p-6 space-y-5">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">Parameter Aturan Kerja</h2>
-                    <p class="text-[11px] text-slate-400">Atur standar absensi dan hitungan potongan gaji</p>
+        <div id="loginCard" class="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)] p-8 space-y-6">
+            <div class="text-center space-y-2">
+                <div class="mx-auto w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center border border-rose-100 shadow-sm">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                    </svg>
                 </div>
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Jam Masuk</label>
-                            <input type="time" id="cfgMasuk" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500 transition-colors">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Jam Pulang</label>
-                            <input type="time" id="cfgPulang" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500 transition-colors">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Total Hari Kerja (Per Bulan)</label>
-                        <div class="relative">
-                            <input type="number" id="cfgHariKerja" min="1" class="w-full pl-3 pr-14 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500 transition-colors">
-                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">Hari</span>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Denda Keterlambatan (% dari Gaji Harian)</label>
-                        <div class="relative">
-                            <input type="number" step="any" id="cfgDenda" min="0" max="100" class="w-full pl-3 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500 transition-colors">
-                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">%</span>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Batas Toleransi Telat (Kali Bebas Denda)</label>
-                        <div class="relative">
-                            <input type="number" id="cfgToleransi" min="0" class="w-full pl-3 pr-14 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500 transition-colors">
-                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">Kali/Bulan</span>
-                        </div>
-                    </div>
-
-                    <button onclick="saveConfig()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition-all mt-4">
-                        Simpan Aturan Baru
-                    </button>
-                </div>
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight">Portal Karyawan</h1>
+                <p class="text-xs text-slate-400">Pilih cabang kerja hari ini dan masukkan akun Anda</p>
             </div>
 
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.01)] p-6 space-y-5 lg:col-span-2 flex flex-col">
+            <div class="space-y-4">
                 <div>
-                    <h2 class="text-sm font-bold text-slate-900">Manajemen Lokasi Cabang</h2>
-                    <p class="text-[11px] text-slate-400">Atur titik lokasi absensi (Geofencing) untuk setiap cabang kantor</p>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Cabang Kerja Hari Ini</label>
+                    <select id="loginCabang" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-rose-500 transition-colors text-slate-700">
+                        <option value="">-- Pilih Cabang --</option>
+                    </select>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 border-b border-slate-100 pb-5">
-                    <div class="md:col-span-1">
-                        <label class="block text-[10px] font-medium text-slate-400 mb-1">Nama Cabang</label>
-                        <input type="text" id="cabNama" placeholder="Contoh: Ayahanda" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-medium text-slate-400 mb-1">Latitude</label>
-                        <input type="text" id="cabLat" placeholder="Contoh: 3.5894" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-medium text-slate-400 mb-1">Longitude</label>
-                        <input type="text" id="cabLng" placeholder="Contoh: 98.6611" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-medium text-slate-400 mb-1">Radius (Meter)</label>
-                        <input type="number" id="cabRadius" placeholder="Contoh: 50" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500">
-                    </div>
-                    <div class="md:col-span-4 flex flex-col sm:flex-row gap-2 mt-1">
-                        <button onclick="getAdminCurrentLocation()" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] rounded-xl transition-all">
-                            Deteksi Titik Lokasi Saya (Otomatis)
-                        </button>
-                        <button onclick="addCabang()" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-xl shadow-md transition-all">
-                            Simpan Data Cabang
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Nomor HP</label>
+                    <input type="text" id="loginPhone" placeholder="Contoh: 0812345678" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-rose-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password Akun</label>
+                    <div class="relative">
+                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-rose-500 transition-colors pr-12">
+                        <button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
                         </button>
                     </div>
+                </div>
+                <div class="flex items-center gap-2 mt-2">
+                    <input type="checkbox" id="rememberMe" class="w-4 h-4 text-rose-600 rounded border-slate-300">
+                    <label for="rememberMe" class="text-[11px] font-semibold text-slate-500">Ingat Saya</label>
+                </div>
+                <button onclick="prosesLogin()" class="w-full py-3.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-rose-600/10 transition-all mt-2">
+                    Masuk Ke Dashboard
+                </button>
+            </div>
+        </div>
+
+        <div id="dashboardCard" class="hidden bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)] p-8 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-50 pb-4">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Selamat Datang,</p>
+                    <h2 id="txtNamaUser" class="text-base font-bold text-slate-900">-</h2>
+                    <p id="txtCabangUser" class="text-[11px] font-semibold text-rose-500 mt-0.5">-</p>
+                </div>
+                <button onclick="prosesLogout()" class="px-3 py-1.5 text-[11px] font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200/50 rounded-xl transition-all">
+                    Keluar
+                </button>
+            </div>
+
+            <div class="bg-slate-50 rounded-2xl p-5 text-center space-y-4 border border-slate-100">
+                <div>
+                    <p id="txtHariTanggal" class="text-xs font-semibold text-slate-400">-</p>
+                    <div id="txtLiveJam" class="text-3xl font-extrabold text-slate-900 font-mono tracking-tight my-1">00:00:00</div>
                 </div>
                 
-                <div class="overflow-y-auto max-h-40 border border-slate-100 rounded-xl flex-1">
-                    <table class="w-full text-left border-collapse relative">
-                        <thead class="sticky top-0 bg-slate-50 border-b border-slate-100">
-                            <tr class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                <th class="py-2.5 px-4">Nama Cabang</th>
-                                <th class="py-2.5 px-4">Titik Koordinat & Radius</th>
-                                <th class="py-2.5 px-4 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableCabang" class="text-xs divide-y divide-slate-100 bg-white">
-                        </tbody>
-                    </table>
+                <div id="areaTombolAbsen">
+                    <p class="text-xs text-slate-400 italic">Memuat status absensi...</p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.01)] p-6 space-y-5 lg:col-span-3">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">Registrasi Data Karyawan</h2>
-                    <p class="text-[11px] text-slate-400">Masukkan profil, akun login, dan informasi perbankan staf</p>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-slate-50/60 p-3 rounded-2xl border border-slate-100 text-center">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hadir</span>
+                    <span id="statHadir" class="text-lg font-bold text-slate-800">0 Hari</span>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Nama Lengkap</label>
-                        <input type="text" id="empNama" placeholder="Contoh: Budi Santoso" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-rose-500 transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Nomor HP (Username Login)</label>
-                        <input type="text" id="empPhone" placeholder="Contoh: 08123456789" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500 transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Password Akun</label>
-                        <input type="text" id="empPassword" placeholder="Buat password bebas" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500 transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Gaji Pokok Bulanan</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
-                            <input type="number" id="empGaji" placeholder="4500000" class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500 transition-colors">
-                        </div>
-                    </div>
-                    
-                    <div class="lg:col-span-4 border-t border-slate-100 mt-2 pt-4">
-                        <span class="block text-[11px] font-bold text-slate-900 uppercase mb-3">Informasi Perbankan</span>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Nama Bank</label>
-                        <input type="text" id="empBank" placeholder="Contoh: BCA, Mandiri, BRI" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-rose-500 transition-colors">
-                    </div>
-                    <div class="md:col-span-3">
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Nomor Rekening</label>
-                        <input type="text" id="empRekening" placeholder="Contoh: 01234567" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500 transition-colors">
-                    </div>
+                <div class="bg-slate-50/60 p-3 rounded-2xl border border-slate-100 text-center">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Telat</span>
+                    <span id="statTelat" class="text-lg font-bold text-rose-600">0 Kali</span>
                 </div>
-                <div class="flex justify-end pt-1">
-                    <button onclick="addKaryawan()" class="px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-md shadow-rose-600/10 transition-all">
-                        Simpan Data Karyawan
-                    </button>
+                <div class="bg-slate-50/60 p-3 rounded-2xl border border-slate-100 text-center">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Izin</span>
+                    <span id="statIzin" class="text-lg font-bold text-amber-500">0 Hari</span>
                 </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.01)] overflow-hidden">
-            <div class="p-6 border-b border-slate-50">
-                <h2 class="text-sm font-bold text-slate-900">Database Profil Karyawan</h2>
-                <p class="text-[11px] text-slate-400">Daftar staf aktif beserta kredensial login dan akun bank</p>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50/70 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            <th class="py-3 px-6">Nama Staf / Kredensial</th>
-                            <th class="py-3 px-4">Gaji Pokok</th>
-                            <th class="py-3 px-4">Informasi Rekening Bank</th>
-                            <th class="py-3 px-4 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableKaryawan" class="text-xs divide-y divide-slate-100">
-                    </tbody>
-                </table>
-            </div>
-            <div id="paginationKaryawan" class="flex flex-wrap justify-center gap-2 p-4 border-t border-slate-50 bg-slate-50/30"></div>
-        </div>
-
-        <div class="space-y-4">
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.01)]">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-slate-400 uppercase pl-2">Pilih Tanggal:</span>
-                        <!-- Ubah onchange memanggil onFilterPayrollChange -->
-                        <input type="date" id="filterTanggal" onchange="onFilterPayrollChange()" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500 text-slate-600">
-                    </div>
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <span class="text-xs font-bold text-slate-400 uppercase pl-2 sm:pl-0 sm:ml-2">Cari:</span>
-                        <!-- Ubah oninput memanggil onFilterPayrollChange -->
-                        <input type="text" id="searchNamaPayroll" oninput="onFilterPayrollChange()" placeholder="Nama Karyawan..." class="w-full sm:w-auto px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500 text-slate-600">
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 w-full md:w-auto">
-                    <button onclick="downloadExcel()" class="flex-1 md:flex-none px-4 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all">
-                        Ekspor Excel (.xlsx)
-                    </button>
-                    <button onclick="downloadPDF()" class="flex-1 md:flex-none px-4 py-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all">
-                        Cetak PDF Report
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.01)] overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50/70 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                <th class="py-4 px-6">Karyawan</th>
-                                <th class="py-4 px-4">Gaji Pokok</th>
-                                <th class="py-4 px-4">Detail Jam & Izin (Log)</th>
-                                <th class="py-4 px-4 text-center">Status Kehadiran</th>
-                                <th class="py-4 px-4 text-rose-600">Total Potongan (Rp)</th>
-                                <th class="py-4 px-6 text-right">Estimasi Net Bersih</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablePayroll" class="text-xs divide-y divide-slate-100">
-                        </tbody>
-                    </table>
-                </div>
-                <div id="paginationPayroll" class="flex flex-wrap justify-center gap-2 p-4 border-t border-slate-100 bg-slate-50/30"></div>
             </div>
         </div>
 
     </main>
 
+    <!-- Modal Kustom -->
+    <div id="customModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-xl space-y-6">
+            <p id="modalMessage" class="text-sm font-semibold text-slate-700 text-center"></p>
+            <div id="modalButtons" class="flex gap-2"></div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        // Fungsi Kustom Alert/Confirm
+        function showModal(message, type = 'alert', callback = null) {
+            const modal = document.getElementById('customModal');
+            const msg = document.getElementById('modalMessage');
+            const btnContainer = document.getElementById('modalButtons');
+
+            msg.innerText = message;
+            btnContainer.innerHTML = ''; 
+
+            if (type === 'alert') {
+                const btn = document.createElement('button');
+                btn.innerText = 'OK';
+                btn.className = 'w-full py-3 bg-rose-600 text-white font-bold text-sm rounded-xl';
+                btn.onclick = () => { modal.classList.add('hidden'); };
+                btnContainer.appendChild(btn);
+            } else if (type === 'confirm') {
+                const btnNo = document.createElement('button');
+                btnNo.innerText = 'Batal';
+                btnNo.className = 'flex-1 py-3 bg-slate-200 text-slate-700 font-bold text-sm rounded-xl';
+                btnNo.onclick = () => { modal.classList.add('hidden'); };
+
+                const btnYes = document.createElement('button');
+                btnYes.innerText = 'Ya';
+                btnYes.className = 'flex-1 py-3 bg-rose-600 text-white font-bold text-sm rounded-xl';
+                btnYes.onclick = () => { modal.classList.add('hidden'); if(callback) callback(); };
+
+                btnContainer.appendChild(btnNo);
+                btnContainer.appendChild(btnYes);
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        window.showModal = showModal;
 
         const firebaseConfig = {
           apiKey: "AIzaSyD_gPsy4tfVRTYJJe2e7pEFyGFtP94YY4I",
@@ -283,572 +177,357 @@
         let daftarCabang = [];
         let karyawan = [];
         let absensi = {};
-        let config = { 
-            jamMasuk: "08:00", jamPulang: "17:00", dendaPersen: 10, toleransiTelat: 3, hariKerja: 26
-        };
+        let config = {};
+        let currentUser = null;
+        let currentDayString = new Date().toDateString();
 
-        // Konfigurasi Variabel Pagination
-        let currentPageKaryawan = 1;
-        let currentPagePayroll = 1;
-        const itemsPerPage = 7;
+        setInterval(() => {
+            const sekarang = new Date();
+            document.getElementById('txtLiveJam').innerText = sekarang.toLocaleTimeString('id-ID', { hour12: false });
+            
+            const opsi = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('txtHariTanggal').innerText = sekarang.toLocaleDateString('id-ID', { ...opsi });
 
-        // Perbaikan format tanggal ke Realtime Local Device (Bukan UTC)
-        const tgl = new Date();
-        const year = tgl.getFullYear();
-        const month = String(tgl.getMonth() + 1).padStart(2, '0');
-        const day = String(tgl.getDate()).padStart(2, '0');
-        const tanggalHariIni = `${year}-${month}-${day}`;
-        
-        document.getElementById('filterTanggal').value = tanggalHariIni;
+            if (sekarang.toDateString() !== currentDayString) {
+                currentDayString = sekarang.toDateString();
+                if (currentUser) {
+                    updateDashboardTampilan();
+                }
+            }
+        }, 1000);
 
         onValue(ref(db, '/'), (snapshot) => {
             const data = snapshot.val() || {};
-            
-            if (data.config) config = data.config;
+            config = data.config || {};
             
             daftarCabang = data.cabang ? Object.values(data.cabang) : [];
             karyawan = data.karyawan ? Object.values(data.karyawan) : [];
-            
-            if (data.absensi) {
-                absensi = data.absensi;
-                for (let id in absensi) {
-                    if (absensi[id] && absensi[id].history && !Array.isArray(absensi[id].history)) {
-                        absensi[id].history = Object.values(absensi[id].history);
-                    }
-                }
-            } else {
-                absensi = {};
+            absensi = data.absensi || {};
+
+            const dropdownCabang = document.getElementById('loginCabang');
+            if (dropdownCabang) {
+                const savedSelected = dropdownCabang.value;
+                dropdownCabang.innerHTML = '<option value="">-- Pilih Cabang --</option>';
+                daftarCabang.forEach(cab => {
+                    const opt = document.createElement('option');
+                    opt.value = cab.nama;
+                    opt.innerText = cab.nama;
+                    dropdownCabang.appendChild(opt);
+                });
+                if (savedSelected) dropdownCabang.value = savedSelected;
             }
 
-            loadConfigInputs();
-            renderCabang();
-            renderKaryawan();
-            renderPayroll();
+            if (!currentUser) {
+                const savedSessionId = localStorage.getItem('active_session_user_id') || sessionStorage.getItem('active_session_user_id');
+                if (savedSessionId && karyawan.length > 0) {
+                    const pencarian = karyawan.find(e => e.id === savedSessionId);
+                    if (pencarian) {
+                        currentUser = pencarian;
+                    }
+                }
+            }
+
+            if (currentUser) {
+                currentUser = karyawan.find(e => e.id === currentUser.id) || currentUser;
+                updateDashboardTampilan();
+            }
         });
 
-        function loadConfigInputs() {
-            document.getElementById('cfgMasuk').value = config.jamMasuk || "08:00";
-            document.getElementById('cfgPulang').value = config.jamPulang || "17:00";
-            document.getElementById('cfgDenda').value = config.dendaPersen || 0;
-            document.getElementById('cfgToleransi').value = config.toleransiTelat ?? 3;
-            document.getElementById('cfgHariKerja').value = config.hariKerja || 26;
+        window.togglePassword = function() {
+            const pwdInput = document.getElementById('loginPassword');
+            pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
         }
 
-        window.saveConfig = function() {
-            config.jamMasuk = document.getElementById('cfgMasuk').value;
-            config.jamPulang = document.getElementById('cfgPulang').value;
-            config.dendaPersen = parseFloat(document.getElementById('cfgDenda').value) || 0;
-            config.toleransiTelat = parseInt(document.getElementById('cfgToleransi').value) ?? 0;
-            config.hariKerja = parseInt(document.getElementById('cfgHariKerja').value) || 26;
+        window.prosesLogin = function() {
+            const cabang = document.getElementById('loginCabang').value;
+            const phone = document.getElementById('loginPhone').value.trim();
+            const pass = document.getElementById('loginPassword').value.trim();
+            const isRememberChecked = document.getElementById('rememberMe').checked;
 
-            set(ref(db, 'config'), config).then(() => {
-                alert("Aturan parameter operasional berhasil diperbarui ke Firebase!");
-            }).catch(err => alert("Gagal: " + err.message));
-        }
+            if (!cabang || !phone || !pass) return showModal("Harap lengkapi Cabang Kerja, Nomor HP, dan Password Anda!");
 
-        window.getAdminCurrentLocation = function() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    document.getElementById('cabLat').value = position.coords.latitude;
-                    document.getElementById('cabLng').value = position.coords.longitude;
-                }, function(error) {
-                    alert("Gagal mendapatkan lokasi: " + error.message);
-                }, { enableHighAccuracy: true });
-            } else {
-                alert("Browser tidak mendukung deteksi lokasi.");
-            }
-        }
+            const userCocok = karyawan.find(e => e.phone === phone && e.password === pass);
 
-        window.addCabang = function() {
-            const nama = document.getElementById('cabNama').value.trim();
-            const lat = document.getElementById('cabLat').value.trim();
-            const lng = document.getElementById('cabLng').value.trim();
-            const radius = parseInt(document.getElementById('cabRadius').value) || 50;
-
-            if (!nama || !lat || !lng) return alert("Harap isi Nama Cabang, Latitude, dan Longitude!");
-
-            const id = "cab_" + Date.now();
-            const newCabang = { id, nama, lat, lng, radius };
-
-            set(ref(db, 'cabang/' + id), newCabang).then(() => {
-                alert("Titik Cabang baru sukses disimpan!");
-                document.getElementById('cabNama').value = '';
-                document.getElementById('cabLat').value = '';
-                document.getElementById('cabLng').value = '';
-                document.getElementById('cabRadius').value = '';
-            }).catch(err => alert("Gagal: " + err.message));
-        }
-
-        window.deleteCabang = function(id) {
-            if (confirm("Hapus data cabang ini dari sistem?")) {
-                set(ref(db, 'cabang/' + id), null).then(() => {
-                    alert("Cabang berhasil dihapus!");
-                }).catch(err => alert("Gagal: " + err.message));
-            }
-        }
-
-        function renderCabang() {
-            const tBody = document.getElementById('tableCabang');
-            tBody.innerHTML = '';
-
-            if (daftarCabang.length === 0) {
-                tBody.innerHTML = `<tr><td colspan="3" class="py-4 text-center font-medium text-slate-400">Belum ada cabang terdaftar.</td></tr>`;
-                return;
-            }
-
-            daftarCabang.forEach(cab => {
-                tBody.innerHTML += `
-                    <tr class="hover:bg-slate-50/60 transition-colors">
-                        <td class="py-2.5 px-4 font-bold text-slate-800">${cab.nama}</td>
-                        <td class="py-2.5 px-4">
-                            <span class="block font-mono text-[10px] text-slate-500">${cab.lat}, ${cab.lng}</span>
-                            <span class="block text-[10px] text-emerald-600 font-semibold mt-0.5">Rad: ${cab.radius}m</span>
-                        </td>
-                        <td class="py-2.5 px-4 text-center">
-                            <button onclick="deleteCabang('${cab.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-[10px] px-2 py-1 hover:bg-rose-50 rounded-lg transition-colors">Hapus</button>
-                        </td>
-                    </tr>`;
-            });
-        }
-
-        window.addKaryawan = function() {
-            const nama = document.getElementById('empNama').value.trim();
-            const gaji = parseFloat(document.getElementById('empGaji').value) || 0;
-            const phone = document.getElementById('empPhone').value.trim();
-            const password = document.getElementById('empPassword').value.trim();
-            const bank = document.getElementById('empBank').value.trim();
-            const rekening = document.getElementById('empRekening').value.trim();
-
-            if (!nama || !phone || !password) return alert("Nama, No HP, dan Password wajib diisi!");
-            if (karyawan.some(e => e.phone === phone)) return alert("Nomor HP tersebut sudah terdaftar!");
-
-            const id = "emp_" + Date.now();
-            const newEmp = { id, nama, gajiBulanan: gaji, phone, password, bank, rekening };
-
-            set(ref(db, 'karyawan/' + id), newEmp).then(() => {
-                alert("Data karyawan baru sukses disimpan ke Firebase Database!");
-                document.getElementById('empNama').value = '';
-                document.getElementById('empGaji').value = '';
-                document.getElementById('empPhone').value = '';
-                document.getElementById('empPassword').value = '';
-                document.getElementById('empBank').value = '';
-                document.getElementById('empRekening').value = '';
-            }).catch(err => alert("Gagal: " + err.message));
-        }
-
-        window.deleteKaryawan = function(id) {
-            if (confirm("Hapus akun profil karyawan ini secara permanen dari Firebase?")) {
-                set(ref(db, 'karyawan/' + id), null).then(() => {
-                    alert("Karyawan berhasil dihapus!");
-                }).catch(err => alert("Gagal: " + err.message));
-            }
-        }
-
-        window.changePageKaryawan = function(page) {
-            currentPageKaryawan = page;
-            renderKaryawan();
-        }
-
-        function renderPaginationKaryawan(totalPages) {
-            const container = document.getElementById('paginationKaryawan');
-            container.innerHTML = '';
-            if (totalPages <= 1) return;
-            
-            for (let i = 1; i <= totalPages; i++) {
-                const btn = document.createElement('button');
-                btn.innerText = i;
-                if (currentPageKaryawan === i) {
-                    btn.className = "w-8 h-8 flex items-center justify-center text-xs font-bold rounded-lg transition-all bg-rose-600 text-white shadow-sm";
-                } else {
-                    btn.className = "w-8 h-8 flex items-center justify-center text-xs font-bold rounded-lg transition-all bg-white border border-slate-200 text-slate-600 hover:bg-slate-50";
-                }
-                btn.onclick = () => changePageKaryawan(i);
-                container.appendChild(btn);
-            }
-        }
-
-        function renderKaryawan() {
-            const tBody = document.getElementById('tableKaryawan');
-            tBody.innerHTML = '';
-
-            if (karyawan.length === 0) {
-                tBody.innerHTML = `<tr><td colspan="4" class="py-6 text-center font-medium text-slate-400">Belum ada data karyawan terdaftar.</td></tr>`;
-                document.getElementById('paginationKaryawan').innerHTML = '';
-                return;
-            }
-
-            const totalPages = Math.ceil(karyawan.length / itemsPerPage);
-            if (currentPageKaryawan > totalPages && totalPages > 0) currentPageKaryawan = totalPages;
-            
-            const startIdx = (currentPageKaryawan - 1) * itemsPerPage;
-            const paginatedKaryawan = karyawan.slice(startIdx, startIdx + itemsPerPage);
-
-            paginatedKaryawan.forEach(emp => {
-                const txtBank = (emp.bank || emp.rekening) ? `${emp.bank} - ${emp.rekening}` : '<span class="text-slate-400 italic">Belum diset</span>';
+            if (userCocok) {
+                currentUser = userCocok;
                 
-                tBody.innerHTML += `
-                    <tr class="hover:bg-slate-50/60 transition-colors">
-                        <td class="py-3 px-6">
-                            <div class="font-bold text-slate-900">${emp.nama}</div>
-                            <div class="text-[10px] text-slate-500 font-medium mt-0.5">HP: ${emp.phone} | Pwd: ${emp.password}</div>
-                        </td>
-                        <td class="py-3 px-4 font-semibold text-slate-600">
-                            Rp ${(emp.gajiBulanan || 0).toLocaleString('id-ID')}
-                        </td>
-                        <td class="py-3 px-4 text-slate-600">${txtBank}</td>
-                        <td class="py-3 px-4 text-center">
-                            <button onclick="deleteKaryawan('${emp.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-[11px] px-2.5 py-1 hover:bg-rose-50 rounded-lg transition-colors">Hapus</button>
-                        </td>
-                    </tr>`;
-            });
+                if (isRememberChecked) {
+                    localStorage.setItem('active_session_user_id', userCocok.id);
+                    localStorage.setItem('active_session_cabang', cabang);
+                } else {
+                    sessionStorage.setItem('active_session_user_id', userCocok.id);
+                    sessionStorage.setItem('active_session_cabang', cabang);
+                }
 
-            renderPaginationKaryawan(totalPages);
+                showModal("Login Berhasil! Selamat bekerja.");
+                updateDashboardTampilan();
+            } else {
+                showModal("Gagal Login! Kredensial akun salah atau tidak ditemukan.");
+            }
         }
 
-        function getFilteredHistory(empId) {
-            const fTanggal = document.getElementById('filterTanggal').value;
-            if (!fTanggal) return [];
+        function updateDashboardTampilan() {
+            if (!currentUser) return;
 
-            const dataStaff = absensi[empId] || { history: [] };
-            return (dataStaff.history || []).filter(item => {
-                const itemDate = new Date(item.timestamp);
-                const year = itemDate.getFullYear();
-                const month = String(itemDate.getMonth() + 1).padStart(2, '0');
-                const day = String(itemDate.getDate()).padStart(2, '0');
-                const itemDateStr = `${year}-${month}-${day}`;
-                return itemDateStr === fTanggal;
-            });
-        }
+            const activeCabang = localStorage.getItem('active_session_cabang') || sessionStorage.getItem('active_session_cabang') || "-";
 
-        function getStatsUpToDate(empId) {
-            const fTanggal = document.getElementById('filterTanggal').value;
-            if (!fTanggal) return { totalHadir: 0, totalTerlambat: 0, totalIzin: 0 };
+            document.getElementById('loginCard').classList.add('hidden');
+            document.getElementById('dashboardCard').classList.remove('hidden');
+            document.getElementById('txtNamaUser').innerText = currentUser.nama;
+            document.getElementById('txtCabangUser').innerText = "Cabang Aktif: " + activeCabang;
 
-            const dataStaff = absensi[empId] || { history: [] };
-            const targetDate = new Date(fTanggal);
-            targetDate.setHours(23, 59, 59, 999);
+            const hariIniString = new Date().toDateString();
+            if (!absensi[currentUser.id]) absensi[currentUser.id] = { history: [] };
+            
+            let historyArray = [];
+            if (absensi[currentUser.id].history) {
+                historyArray = Array.isArray(absensi[currentUser.id].history) 
+                    ? absensi[currentUser.id].history 
+                    : Object.values(absensi[currentUser.id].history);
+            }
+
+            const logHariIni = historyArray.find(item => new Date(item.timestamp).toDateString() === hariIniString);
+            const containerTombol = document.getElementById('areaTombolAbsen');
+
+            if (!logHariIni) {
+                containerTombol.innerHTML = `
+                    <p class="text-[10px] font-medium text-slate-400 mb-3">Pastikan GPS HP Aktif & Berada di Radius Cabang</p>
+                    <div class="flex gap-2">
+                        <button onclick="lakukanAbsensi('Masuk')" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
+                            ABSEN MASUK
+                        </button>
+                        <button onclick="tampilkanFormIzin()" class="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-md transition-all">
+                            IZIN KERJA
+                        </button>
+                    </div>
+                    <div id="formIzinArea" class="hidden mt-3 space-y-2 text-left">
+                        <input type="text" id="inputAlasanIzin" placeholder="Keterangan izin (Sakit/Acara/Dll)..." class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-amber-500 transition-colors">
+                        <div class="flex gap-2">
+                            <button onclick="batalIzin()" class="flex-1 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-all">Batal</button>
+                            <button onclick="kirimIzin()" class="flex-1 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition-all">Kirim Data Izin</button>
+                        </div>
+                    </div>
+                    `;
+            } else if (logHariIni.status === "Izin") {
+                containerTombol.innerHTML = `
+                    <div class="py-2.5 bg-amber-50 text-amber-600 text-xs font-bold rounded-xl border border-amber-200">
+                        ✓ ANDA SEDANG IZIN HARI INI
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-2 font-medium">Keterangan: ${logHariIni.keterangan || '-'}</p>`;
+            } else if (logHariIni.pulang === "-") {
+                containerTombol.innerHTML = `
+                    <button onclick="lakukanAbsensi('Pulang')" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
+                        ABSEN PULANG (CLOCK OUT)
+                    </button>
+                    <p class="text-[11px] text-emerald-600 font-semibold mt-2">Anda sudah Clock In pukul ${logHariIni.masuk}</p>`;
+            } else {
+                containerTombol.innerHTML = `
+                    <div class="py-2.5 bg-slate-100 text-slate-500 text-xs font-bold rounded-xl border border-slate-200">
+                        ✓ ABSENSI HARI INI SELESAI
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">Masuk: ${logHariIni.masuk} | Pulang: ${logHariIni.pulang}</p>`;
+            }
 
             let totalHadir = 0;
-            let totalTerlambat = 0;
+            let totalTelat = 0;
             let totalIzin = 0;
 
-            (dataStaff.history || []).forEach(item => {
-                const itemDate = new Date(item.timestamp);
-                if (itemDate <= targetDate) {
-                    if (item.status === "Izin") {
-                        totalIzin++;
-                    } else {
-                        totalHadir++;
-                        if (item.status === "Terlambat") totalTerlambat++;
-                    }
+            historyArray.forEach(h => {
+                if(h.status === "Izin") totalIzin++;
+                else {
+                    totalHadir++;
+                    if(h.status === "Terlambat") totalTelat++;
                 }
             });
 
-            return { totalHadir, totalTerlambat, totalIzin };
+            document.getElementById('statHadir').innerText = totalHadir + " Hari";
+            document.getElementById('statTelat').innerText = totalTelat + " Kali";
+            document.getElementById('statIzin').innerText = totalIzin + " Hari";
         }
 
-        window.onFilterPayrollChange = function() {
-            currentPagePayroll = 1; // Reset page ke 1 saat mengganti tanggal atau mencari
-            renderPayroll();
+        window.tampilkanFormIzin = function() {
+            document.getElementById('formIzinArea').classList.remove('hidden');
         }
 
-        window.changePagePayroll = function(page) {
-            currentPagePayroll = page;
-            renderPayroll();
+        window.batalIzin = function() {
+            document.getElementById('formIzinArea').classList.add('hidden');
+            document.getElementById('inputAlasanIzin').value = '';
         }
 
-        function renderPaginationPayroll(totalPages) {
-            const container = document.getElementById('paginationPayroll');
-            container.innerHTML = '';
-            if (totalPages <= 1) return;
+        window.kirimIzin = function() {
+            if (!currentUser) return;
+            const alasan = document.getElementById('inputAlasanIzin').value.trim();
             
-            for (let i = 1; i <= totalPages; i++) {
-                const btn = document.createElement('button');
-                btn.innerText = i;
-                if (currentPagePayroll === i) {
-                    btn.className = "w-8 h-8 flex items-center justify-center text-xs font-bold rounded-lg transition-all bg-rose-600 text-white shadow-sm";
-                } else {
-                    btn.className = "w-8 h-8 flex items-center justify-center text-xs font-bold rounded-lg transition-all bg-white border border-slate-200 text-slate-600 hover:bg-slate-50";
-                }
-                btn.onclick = () => changePagePayroll(i);
-                container.appendChild(btn);
+            if (!alasan) {
+                return showModal("Keterangan izin wajib diisi secara detail!");
             }
+
+            const sekarang = new Date();
+            const activeCabang = localStorage.getItem('active_session_cabang') || sessionStorage.getItem('active_session_cabang') || "-";
+
+            if (!absensi[currentUser.id]) absensi[currentUser.id] = { history: [] };
+            
+            let historyArray = [];
+            if (absensi[currentUser.id].history) {
+                historyArray = Array.isArray(absensi[currentUser.id].history) 
+                    ? absensi[currentUser.id].history 
+                    : Object.values(absensi[currentUser.id].history);
+            }
+
+            historyArray.push({
+                timestamp: sekarang.getTime(),
+                masuk: "-",
+                pulang: "-",
+                status: "Izin",
+                keterangan: alasan,
+                cabang: activeCabang
+            });
+            
+            set(ref(db, 'absensi/' + currentUser.id + '/history'), historyArray).then(() => {
+                showModal(`Pengajuan izin untuk hari ini berhasil dicatat. Gaji hari ini akan dipotong secara otomatis dari sistem.`);
+                updateDashboardTampilan();
+            });
         }
 
-        window.renderPayroll = function() {
-            const tBody = document.getElementById('tablePayroll');
-            tBody.innerHTML = '';
+        function hitungJarakMeter(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; 
+            const phi1 = lat1 * Math.PI / 180;
+            const phi2 = lat2 * Math.PI / 180;
+            const deltaPhi = (lat2 - lat1) * Math.PI / 180;
+            const deltaLambda = (lon2 - lon1) * Math.PI / 180;
 
-            if (karyawan.length === 0) {
-                tBody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400 font-medium">Registrasikan karyawan terlebih dahulu untuk memproses slip payroll.</td></tr>`;
-                document.getElementById('paginationPayroll').innerHTML = '';
+            const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+                      Math.cos(phi1) * Math.cos(phi2) *
+                      Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c;
+        }
+
+        window.lakukanAbsensi = function(tipe) {
+            if (!currentUser) return;
+
+            const activeCabang = localStorage.getItem('active_session_cabang') || sessionStorage.getItem('active_session_cabang') || "-";
+
+            const eksekusiSimpanFirebase = (tipeAbsen) => {
+                const sekarang = new Date();
+                const jamMenit = sekarang.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+                const hariIniString = sekarang.toDateString();
+
+                if (!absensi[currentUser.id]) absensi[currentUser.id] = { history: [] };
+                
+                let historyArray = [];
+                if (absensi[currentUser.id].history) {
+                    historyArray = Array.isArray(absensi[currentUser.id].history) 
+                        ? absensi[currentUser.id].history 
+                        : Object.values(absensi[currentUser.id].history);
+                }
+
+                let logHariIni = historyArray.find(item => new Date(item.timestamp).toDateString() === hariIniString);
+
+                if (tipeAbsen === 'Masuk') {
+                    if (logHariIni) {
+                        showModal("Anda sudah mencatat log masuk/izin hari ini!");
+                        updateDashboardTampilan();
+                        return;
+                    }
+                    
+                    let statusMasuk = (jamMenit > (config.jamMasuk || "08:00")) ? "Terlambat" : "Tepat Waktu";
+                    historyArray.push({
+                        timestamp: sekarang.getTime(),
+                        masuk: jamMenit,
+                        pulang: "-",
+                        status: statusMasuk,
+                        cabang: activeCabang
+                    });
+                    
+                    set(ref(db, 'absensi/' + currentUser.id + '/history'), historyArray).then(() => {
+                        showModal(`Sukses! Log MASUK tersimpan pukul ${jamMenit} (${statusMasuk}) di cabang ${activeCabang}`);
+                        updateDashboardTampilan();
+                    });
+
+                } else if (tipeAbsen === 'Pulang') {
+                    if (!logHariIni) {
+                        showModal("Gagal! Anda belum absen masuk hari ini.");
+                        updateDashboardTampilan();
+                        return;
+                    }
+                    if (logHariIni.pulang !== "-") {
+                        showModal("Anda sudah absen pulang hari ini.");
+                        updateDashboardTampilan();
+                        return;
+                    }
+                    
+                    const idx = historyArray.findIndex(item => new Date(item.timestamp).toDateString() === hariIniString);
+                    if (idx !== -1) {
+                        historyArray[idx].pulang = jamMenit;
+                    }
+                    
+                    set(ref(db, 'absensi/' + currentUser.id + '/history'), historyArray).then(() => {
+                        showModal(`Sukses! Log PULANG tersimpan pukul ${jamMenit}. Selamat beristirahat!`);
+                        updateDashboardTampilan();
+                    });
+                }
+            };
+
+            if (tipe === 'Pulang') {
+                document.getElementById('areaTombolAbsen').innerHTML = `<p class="text-xs font-medium text-slate-500 animate-pulse">Memproses absen pulang Anda...</p>`;
+                eksekusiSimpanFirebase('Pulang');
                 return;
             }
 
-            const fTanggal = document.getElementById('filterTanggal').value;
-            const searchName = document.getElementById('searchNamaPayroll').value.toLowerCase(); 
-            
-            let filterDateObj = new Date(fTanggal);
-            filterDateObj.setHours(23, 59, 59, 999);
-
-            let activeEmployees = karyawan.filter(emp => {
-                let empTimestamp = parseInt(emp.id.replace("emp_", ""));
-                if (!isNaN(empTimestamp)) {
-                    let empJoinDate = new Date(empTimestamp);
-                    empJoinDate.setHours(0, 0, 0, 0); 
-                    return filterDateObj >= empJoinDate;
-                }
-                return true; 
-            });
-
-            if (searchName) {
-                activeEmployees = activeEmployees.filter(emp => emp.nama.toLowerCase().includes(searchName));
+            if (!navigator.geolocation) {
+                return showModal("Gagal absen! Perangkat Anda tidak mendukung fitur lokasi GPS.");
             }
 
-            if (activeEmployees.length === 0) {
-                tBody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400 font-medium">Tidak ada karyawan yang cocok dengan pencarian atau tanggal terpilih.</td></tr>`;
-                document.getElementById('paginationPayroll').innerHTML = '';
-                return;
-            }
+            document.getElementById('areaTombolAbsen').innerHTML = `<p class="text-xs font-medium text-slate-500 animate-pulse">Sedang memverifikasi lokasi GPS Anda...</p>`;
 
-            const totalPages = Math.ceil(activeEmployees.length / itemsPerPage);
-            if (currentPagePayroll > totalPages && totalPages > 0) currentPagePayroll = totalPages;
-            
-            const startIdx = (currentPagePayroll - 1) * itemsPerPage;
-            const paginatedEmployees = activeEmployees.slice(startIdx, startIdx + itemsPerPage);
+            navigator.geolocation.getCurrentPosition((position) => {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
 
-            paginatedEmployees.forEach(emp => {
-                const dailyHistory = getFilteredHistory(emp.id); 
-                const stats = getStatsUpToDate(emp.id);
-                
-                let totalHadir = stats.totalHadir;
-                let totalTerlambat = stats.totalTerlambat;
-                let totalIzin = stats.totalIzin;
+                const dataCabang = daftarCabang.find(c => c.nama === activeCabang);
+                const officeLat = dataCabang ? parseFloat(dataCabang.lat) : null;
+                const officeLng = dataCabang ? parseFloat(dataCabang.lng) : null;
+                const allowedRadius = dataCabang ? (parseInt(dataCabang.radius) || 50) : 50;
 
-                let baseGajiBulanan = emp.gajiBulanan || 0;
-                let totalPotongan = 0;
-                let toleransi = (config.toleransiTelat !== undefined && config.toleransiTelat !== null) ? config.toleransiTelat : 3;
-                let hariKerja = config.hariKerja || 26;
-
-                let gajiHarianProRata = baseGajiBulanan / hariKerja;
-                let dendaTelat = 0;
-                
-                // Hitung denda telat
-                if (totalTerlambat > toleransi) {
-                    let kaliMelanggarDenda = totalTerlambat - toleransi;
-                    dendaTelat = (gajiHarianProRata * (config.dendaPersen / 100)) * kaliMelanggarDenda;
+                if (!dataCabang || !officeLat || !officeLng) {
+                    showModal("Peringatan: Koordinat Cabang tempat Anda bekerja hari ini belum diatur oleh Admin. Absen diteruskan tanpa validasi jarak.");
+                    eksekusiSimpanFirebase('Masuk');
+                    return;
                 }
+
+                const jarakSayaKeKantor = hitungJarakMeter(userLat, userLng, officeLat, officeLng);
                 
-                // Hitung potongan izin
-                let potonganIzin = totalIzin * gajiHarianProRata;
-                
-                totalPotongan = Math.round(dendaTelat + potonganIzin);
-                let finalPay = Math.round(Math.max(0, baseGajiBulanan - totalPotongan));
+                if (jarakSayaKeKantor > allowedRadius) {
+                    showModal(`Absen Ditolak!\n\nJarak Anda saat ini adalah ${Math.round(jarakSayaKeKantor)} meter dari Cabang ${dataCabang.nama}.\nBatas maksimum radius aman adalah ${allowedRadius} meter.`);
+                    updateDashboardTampilan(); 
+                    return;
+                }
 
-                let rincianJamHtml = dailyHistory.map(h => {
-                    let d = new Date(h.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short'});
-                    if (h.status === "Izin") {
-                        return `<div class="text-[11px] leading-relaxed border-b border-slate-100/50 pb-0.5 mb-0.5 font-mono">
-                            <span class="text-slate-400 font-sans">${d}:</span> <span class="text-amber-500 font-bold">IZIN</span> - ${h.keterangan || '-'} (Cab: ${h.cabang || '-'})
-                        </div>`;
-                    } else {
-                        let badgeStatus = h.status === "Terlambat" ? "text-rose-600 font-bold" : "text-emerald-600";
-                        return `<div class="text-[11px] leading-relaxed border-b border-slate-100/50 pb-0.5 mb-0.5 font-mono">
-                            <span class="text-slate-400 font-sans">${d}:</span> Masuk <span class="${badgeStatus}">${h.masuk}</span> | Pulang: <span>${h.pulang}</span> (Cab: ${h.cabang || '-'})
-                        </div>`;
-                    }
-                }).join("");
+                eksekusiSimpanFirebase('Masuk');
 
-                if(!rincianJamHtml) rincianJamHtml = `<span class="text-slate-400 italic text-[11px]">Tidak ada log aktivitas</span>`;
-
-                tBody.innerHTML += `
-                    <tr class="hover:bg-slate-50/40 transition-colors">
-                        <td class="py-4 px-6">
-                            <div class="font-bold text-slate-900">${emp.nama}</div>
-                            <div class="text-[10px] text-slate-400 font-semibold mt-0.5">${emp.bank || '-'} | Rek: ${emp.rekening || '-'}</div>
-                        </td>
-                        <td class="py-4 px-4 font-semibold text-slate-500">Rp ${baseGajiBulanan.toLocaleString('id-ID')}</td>
-                        <td class="py-4 px-4 max-w-xs">${rincianJamHtml}</td>
-                        <td class="py-4 px-4 text-center">
-                            <div class="font-bold text-slate-800">${totalHadir} Hari Hadir</div>
-                            <div class="text-[11px] text-rose-500 font-semibold mt-0.5">Telat: ${totalTerlambat}x (Max: ${toleransi}x)</div>
-                            <div class="text-[11px] text-amber-500 font-semibold mt-0.5">Izin: ${totalIzin} Hari</div>
-                        </td>
-                        <td class="py-4 px-4">
-                            <div class="font-bold text-rose-600">Rp ${totalPotongan.toLocaleString('id-ID')}.00</div>
-                            <div class="text-[10px] text-slate-400 mt-1">
-                                Telat: Rp ${Math.round(dendaTelat).toLocaleString('id-ID')}<br>
-                                Izin: Rp ${Math.round(potonganIzin).toLocaleString('id-ID')}
-                            </div>
-                        </td>
-                        <td class="py-4 px-6 text-right font-bold text-emerald-600 text-sm">Rp ${finalPay.toLocaleString('id-ID')}</td>
-                    </tr>`;
-            });
-
-            renderPaginationPayroll(totalPages);
+            }, (error) => {
+                showModal(`Gagal membaca lokasi! Pastikan izin GPS sudah diizinkan.\nError: ${error.message}`);
+                updateDashboardTampilan();
+            }, { enableHighAccuracy: true, timeout: 10000 });
         }
 
-        window.downloadExcel = function() {
-            let data = [];
-            let fTanggal = document.getElementById('filterTanggal').value || '-';
-            const searchName = document.getElementById('searchNamaPayroll').value.toLowerCase();
-
-            let filterDateObj = new Date(fTanggal);
-            filterDateObj.setHours(23, 59, 59, 999);
-
-            let activeEmployees = karyawan.filter(emp => {
-                let empTimestamp = parseInt(emp.id.replace("emp_", ""));
-                if (!isNaN(empTimestamp)) {
-                    let empJoinDate = new Date(empTimestamp);
-                    empJoinDate.setHours(0, 0, 0, 0); 
-                    return filterDateObj >= empJoinDate;
-                }
-                return true; 
+        window.prosesLogout = function() {
+            showModal("Apakah Anda ingin keluar dari akun ini?", 'confirm', () => {
+                localStorage.removeItem('active_session_user_id');
+                localStorage.removeItem('active_session_cabang');
+                sessionStorage.removeItem('active_session_user_id');
+                sessionStorage.removeItem('active_session_cabang');
+                currentUser = null;
+                document.getElementById('loginPhone').value = "";
+                document.getElementById('loginPassword').value = "";
+                document.getElementById('loginCabang').value = "";
+                document.getElementById('rememberMe').checked = false;
+                document.getElementById('dashboardCard').classList.add('hidden');
+                document.getElementById('loginCard').classList.remove('hidden');
             });
-
-            if (searchName) {
-                activeEmployees = activeEmployees.filter(emp => emp.nama.toLowerCase().includes(searchName));
-            }
-
-            activeEmployees.forEach((emp, index) => {
-                const stats = getStatsUpToDate(emp.id); 
-                let totalHadir = stats.totalHadir;
-                let totalTerlambat = stats.totalTerlambat;
-                let totalIzin = stats.totalIzin;
-
-                let baseGajiBulanan = emp.gajiBulanan || 0;
-                let totalPotongan = 0;
-                let toleransi = (config.toleransiTelat !== undefined && config.toleransiTelat !== null) ? config.toleransiTelat : 3;
-                let hariKerja = config.hariKerja || 26;
-
-                let gajiHarianProRata = baseGajiBulanan / hariKerja; 
-                let dendaTelat = 0;
-                
-                if (totalTerlambat > toleransi) {
-                    let kaliMelanggarDenda = totalTerlambat - toleransi;
-                    dendaTelat = (gajiHarianProRata * (config.dendaPersen / 100)) * kaliMelanggarDenda;
-                }
-                
-                let potonganIzin = totalIzin * gajiHarianProRata;
-                totalPotongan = Math.round(dendaTelat + potonganIzin);
-                let finalPay = Math.round(Math.max(0, baseGajiBulanan - totalPotongan));
-
-                data.push({
-                    "No": index + 1,
-                    "Nama Karyawan": emp.nama,
-                    "No HP": emp.phone,
-                    "Nama Bank": emp.bank || '-',
-                    "No Rekening": emp.rekening || '-',
-                    "Gaji Pokok": baseGajiBulanan,
-                    "Total Hadir (Hari)": totalHadir,
-                    "Total Telat (Kali)": totalTerlambat,
-                    "Total Izin (Hari)": totalIzin,
-                    "Total Potongan": totalPotongan,
-                    "Gaji Bersih Diterima": finalPay
-                });
-            });
-
-            let ws = XLSX.utils.json_to_sheet(data);
-            let wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Payroll Rekap");
-            XLSX.writeFile(wb, `Rekap_Payroll_Tanggal_${fTanggal}.xlsx`);
-        }
-
-        window.downloadPDF = function() {
-            const { jsPDF } = window.jspdf;
-            let doc = new jsPDF('l', 'mm', 'a4');
-
-            let fTanggal = document.getElementById('filterTanggal').value || '-';
-            const searchName = document.getElementById('searchNamaPayroll').value.toLowerCase();
-            let hariKerja = config.hariKerja || 26;
-
-            doc.setFont("Helvetica", "bold");
-            doc.setFontSize(16);
-            doc.text("LAPORAN REKAP PAYROLL & ABSENSI KARYAWAN", 14, 18);
-            doc.setFontSize(10);
-            doc.setFont("Helvetica", "normal");
-            doc.text(`Tanggal Laporan: ${fTanggal}`, 14, 24);
-            doc.text(`Aturan Sistem - Hitungan Gaji: ${hariKerja} Hari/Bulan | Potongan Telat: ${config.dendaPersen}% per hari`, 14, 29);
-
-            let filterDateObj = new Date(fTanggal);
-            filterDateObj.setHours(23, 59, 59, 999);
-
-            let activeEmployees = karyawan.filter(emp => {
-                let empTimestamp = parseInt(emp.id.replace("emp_", ""));
-                if (!isNaN(empTimestamp)) {
-                    let empJoinDate = new Date(empTimestamp);
-                    empJoinDate.setHours(0, 0, 0, 0); 
-                    return filterDateObj >= empJoinDate;
-                }
-                return true; 
-            });
-
-            if (searchName) {
-                activeEmployees = activeEmployees.filter(emp => emp.nama.toLowerCase().includes(searchName));
-            }
-
-            let bodyData = [];
-            activeEmployees.forEach((emp, index) => {
-                const dailyHistory = getFilteredHistory(emp.id);
-                const stats = getStatsUpToDate(emp.id);
-                
-                let totalHadir = stats.totalHadir;
-                let totalTerlambat = stats.totalTerlambat;
-                let totalIzin = stats.totalIzin;
-
-                let baseGajiBulanan = emp.gajiBulanan || 0;
-                let totalPotongan = 0;
-                let toleransi = (config.toleransiTelat !== undefined && config.toleransiTelat !== null) ? config.toleransiTelat : 3;
-
-                let gajiHarianProRata = baseGajiBulanan / hariKerja; 
-                let dendaTelat = 0;
-                
-                if (totalTerlambat > toleransi) {
-                    let kaliMelanggarDenda = totalTerlambat - toleransi;
-                    dendaTelat = (gajiHarianProRata * (config.dendaPersen / 100)) * kaliMelanggarDenda;
-                }
-                let potonganIzin = totalIzin * gajiHarianProRata;
-                totalPotongan = Math.round(dendaTelat + potonganIzin);
-                let finalPay = Math.round(Math.max(0, baseGajiBulanan - totalPotongan));
-
-                let rincianJamPdf = dailyHistory.map(h => {
-                    let d = new Date(h.timestamp).toLocaleDateString('id-ID', {day:'numeric', month:'short'});
-                    if(h.status === "Izin") return `${d}->IZIN: ${h.keterangan || '-'}`;
-                    return `${d}->I:${h.masuk} O:${h.pulang} (${h.cabang || '-'})`;
-                }).join("\n");
-
-                bodyData.push([
-                    index + 1, 
-                    `${emp.nama}\n(HP: ${emp.phone || '-'})`, 
-                    `Rp ${baseGajiBulanan.toLocaleString('id-ID')}`, 
-                    `${emp.bank || '-'}\n${emp.rekening || '-'}`,
-                    rincianJamPdf || "-",
-                    `${totalHadir}Hadir\n${totalTerlambat}Telat\n${totalIzin}Izin`, 
-                    `Rp ${totalPotongan.toLocaleString('id-ID')}.00`, 
-                    `Rp ${finalPay.toLocaleString('id-ID')}`
-                ]);
-            });
-
-            doc.autoTable({
-                startY: 35,
-                head: [['No', 'Karyawan', 'Gaji Pokok', 'Informasi Bank', 'Aktivitas (Log)', 'Statistik', 'Tot. Potongan', 'Estimasi Cair']],
-                body: bodyData, 
-                theme: 'striped', 
-                headStyles: { fillColor: [220, 38, 38], fontStyle: 'bold' }, 
-                styles: { fontSize: 8, valign: 'middle' },
-                columnStyles: { 0: { cellWidth: 8 }, 4: { fontSize: 7, fontStyle: 'italic' }, 7: { fontStyle: 'bold' } }
-            });
-
-            doc.save(`PayRoll_Report_Tanggal_${fTanggal}.pdf`);
-        }
-
-        window.clearData = function() {
-            if (confirm("Reset total semua data di Cloud Firebase Database?")) {
-                set(ref(db, '/'), null).then(() => {
-                    alert("Seluruh database Firebase berhasil dibersihkan!");
-                });
-            }
-        }
+        };
     </script>
 </body>
 </html>
